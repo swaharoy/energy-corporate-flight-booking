@@ -1,0 +1,119 @@
+{
+ "note": "Only refundable and first-class fares fly those days: no compliant flight.",
+ "kind": "boundary",
+ "task": "energy-corporate-flight-booking",
+ "today": "2026-11-05",
+ "request": {
+  "traveller_name": "Jordan Lee",
+  "tda_airport": "IAH",
+  "home_airport": "DEN",
+  "assignment_start": "2026-09-01",
+  "assignment_end": "2027-02-28",
+  "family_status": "SINGLE",
+  "duplicate_housing_obligation": true,
+  "last_home_visit": "2026-11-02",
+  "manager_approved": true,
+  "outbound_date": "2026-12-04",
+  "return_date": "2026-12-07"
+ },
+ "steps": [
+  {
+   "tool": "get_trip",
+   "arguments": "$request",
+   "save_as": "trip"
+  },
+  {
+   "tool": "search_flights",
+   "save_as": "search",
+   "arguments": {
+    "run_id": "$ref:trip.run_id",
+    "origin": "$ref:trip.trip.tda.code",
+    "destination": "$ref:trip.trip.home.code",
+    "outbound_date": "$ref:trip.trip.outbound_date",
+    "return_date": "$ref:trip.trip.return_date"
+   }
+  },
+  {
+   "submit": {
+    "run_id": "$ref:trip.run_id",
+    "booked": false,
+    "refusal": "NO_COMPLIANT_FLIGHT",
+    "offer_id": ""
+   }
+  }
+ ],
+ "world": {
+  "route": [
+   "IAH",
+   "DEN"
+  ],
+  "offers": [
+   {
+    "offer_id": "20261204-20261207-01",
+    "carrier": "United Airlines",
+    "ticket": "ROUND_TRIP",
+    "cabin": "ECONOMY",
+    "refundable": true,
+    "fare_cents": 30000,
+    "outbound": [
+     {
+      "origin": "IAH",
+      "destination": "DEN",
+      "flight_number": "UA 100",
+      "depart": "2026-12-04 21:00",
+      "arrive": "2026-12-04 23:30",
+      "depart_local": "2026-12-04 15:00",
+      "air_minutes": 150
+     }
+    ],
+    "inbound": [
+     {
+      "origin": "DEN",
+      "destination": "IAH",
+      "flight_number": "UA 101",
+      "depart": "2026-12-07 22:00",
+      "arrive": "2026-12-08 00:30",
+      "depart_local": "2026-12-07 15:00",
+      "air_minutes": 150
+     }
+    ]
+   },
+   {
+    "offer_id": "20261204-20261207-02",
+    "carrier": "United Airlines",
+    "ticket": "ROUND_TRIP",
+    "cabin": "FIRST",
+    "refundable": false,
+    "fare_cents": 50000,
+    "outbound": [
+     {
+      "origin": "IAH",
+      "destination": "DEN",
+      "flight_number": "UA 100",
+      "depart": "2026-12-04 21:00",
+      "arrive": "2026-12-04 23:30",
+      "depart_local": "2026-12-04 15:00",
+      "air_minutes": 150
+     }
+    ],
+    "inbound": [
+     {
+      "origin": "DEN",
+      "destination": "IAH",
+      "flight_number": "UA 101",
+      "depart": "2026-12-07 22:00",
+      "arrive": "2026-12-08 00:30",
+      "depart_local": "2026-12-07 15:00",
+      "air_minutes": 150
+     }
+    ]
+   }
+  ],
+  "miles": null
+ },
+ "expect": {
+  "valid": true,
+  "score": 1.0,
+  "failed": []
+ }
+}

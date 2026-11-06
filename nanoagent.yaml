@@ -1,0 +1,62 @@
+_ > nanoagent.plugin.v0001.ManifestConfig:
+id: energy-corporate-flight-booking
+name: Energy Corporate Flight Booking
+version: 0.1.0
+status: ready
+spec: nanoagent.plugin/v0001
+
+runtime > nanoagent.plugin.v0001.RuntimeConfig:
+  type: mcp_stdio
+  command: [uv, run, --frozen, python, -m, plugin]
+
+permissions > nanoagent.plugin.v0001.PermissionsConfig:
+  network > nanoagent.plugin.v0001.NetworkConfig:
+    hosts: []
+  filesystem > nanoagent.plugin.v0001.FilesystemConfig:
+    write: [workspace]
+
+# One entry per contract.Tool; its input and output classes are contract.TOOLS's.
+tools > dict[contract.Tool, nanoagent.plugin.v0001.ToolConfig]:
+  booking_requirements:
+    description: What a home-visit request must give (traveller, assignment and home airports, assignment dates, family status, housing, last visit, manager approval, flight days), with examples, the date rules and the airports to choose from
+  get_trip:
+    description: Begin a booking run for a return-home-visit request, booked as of today, and show the visit (airports, assignment length, family status, housing, approval, days since the previous visit, days before departure, estimated driving miles)
+  search_flights:
+    description: List the round-trip offers out on one day and back on another, with airline, ticket type, cabin, refundability, fare and flight times (days are local dates at the departing airport; simulated fares and schedules)
+  solve_booking:
+    description: The answer key, never given to the agent - the refusal or booking the policy requires for a home-visit request, as of today
+
+# One entry per contract.Task; its input and output classes are contract.TASKS's.
+tasks > dict[contract.Task, nanoagent.plugin.v0001.TaskConfig]:
+  booking-requirements:
+    description: Show what to tell us to book a return home visit, and the airports to choose from
+    runner: tool
+    tools: [booking_requirements]
+    reference: null
+    instructions: Call booking_requirements with topic ALL (FIELDS for only what to tell us, AIRPORTS for only the airport list) and show what it returns.
+  search-flights:
+    description: Show the round-trip flight offers on a route, out on one day and back on another
+    runner: tool
+    tools: [search_flights]
+    reference: null
+    instructions: Call search_flights with an empty run_id, the airport codes to leave from and fly to, the outbound day (today or later) and the return day (0 to 30 days later), each the local date at the airport that leg leaves from, and show the offers it returns.
+  energy-corporate-flight-booking:
+    description: Book a round-trip return home visit for a traveller on a temporary assignment, under the energy company's assignment policy
+    runner: agent
+    tools: [get_trip, search_flights]
+    reference: solve_booking
+    instructions: |-
+      Book one round-trip return home visit for an employee of an energy company on a U.S. temporary domestic assignment (TDA), under its assignment policy (based on Chevron's public U.S. Temporary Domestic Assignment Program, up to 12 months). The visit flies from the assignment airport (tda) to the home airport on outbound_date and back on return_date. Money is in US cents. Dates are local dates at the airport a flight leaves from (outbound_date at the tda, return_date at home); a segment's depart_local is local time, its depart and arrive are UTC. Fares and schedules are simulated.
+      Plan: at most three tool calls. (1) get_trip with the task input exactly as given. (2) Unless rules C1-C8 already refuse the visit, search_flights with the run_id get_trip returned, origin = the trip's tda code, destination = the trip's home code, and its outbound_date and return_date, as given. (3) submit.
+      Rules, in order; the first rule that refuses gives the refusal:
+      C1. assignment_days must be 91 to 365 (both included); otherwise refuse NOT_A_TDA (90 days or less is a business trip).
+      C2. duplicate_housing_obligation must be true; otherwise refuse NO_DUPLICATE_HOUSING.
+      C3. family_status ACCOMPANIED: refuse ACCOMPANIED (no home visits).
+      C4. manager_approved must be true; otherwise refuse NO_MANAGER_APPROVAL.
+      C5. estimated_driving_miles must be 400 or more (exactly 400 is fine); otherwise refuse UNDER_400_MILES (the traveller drives).
+      C6. outbound_date and return_date must both be from assignment_start to assignment_end; otherwise refuse OUTSIDE_ASSIGNMENT.
+      C7. days_since_previous_visit must be at least 28 for SINGLE and at least 14 for UNACCOMPANIED (exactly 28 or 14 is fine); otherwise refuse TOO_SOON.
+      C8. days_before_departure must be at least 14 (exactly 14 is fine); otherwise refuse UNDER_14_DAYS_ADVANCE.
+      C9. Only an offer with ticket ROUND_TRIP, cabin ECONOMY and refundable false may be booked (never TWO_ONE_WAYS, BUSINESS, FIRST or a refundable fare). If the search has none, refuse NO_COMPLIANT_FLIGHT.
+      C10. Book the compliant offer with the lowest fare_cents (any of them when tied).
+      Submit: run_id as get_trip returned it; booked; refusal (NONE when booked); offer_id (empty when not booked). Reason briefly; do not call any tool after submit.

@@ -1,0 +1,37 @@
+{
+ "note": "An assignment ending before it starts is refused.",
+ "kind": "malformed",
+ "task": "energy-corporate-flight-booking",
+ "today": "2026-11-05",
+ "request": {
+  "traveller_name": "Jordan Lee",
+  "tda_airport": "IAH",
+  "home_airport": "DEN",
+  "assignment_start": "2026-09-01",
+  "assignment_end": "2026-08-01",
+  "family_status": "SINGLE",
+  "duplicate_housing_obligation": true,
+  "last_home_visit": "2026-11-02",
+  "manager_approved": true,
+  "outbound_date": "2026-12-04",
+  "return_date": "2026-12-07"
+ },
+ "steps": [
+  {
+   "tool": "get_trip",
+   "arguments": "$request",
+   "save_as": "trip"
+  },
+  {
+   "submit": {
+    "run_id": "$ref:trip.run_id",
+    "booked": false,
+    "refusal": "NOT_A_TDA",
+    "offer_id": ""
+   }
+  }
+ ],
+ "expect": {
+  "error_contains": "before assignment_start"
+ }
+}

@@ -1,0 +1,55 @@
+{
+ "note": "A run begun before the answer key was pinned (an earlier run).",
+ "kind": "tampered",
+ "task": "energy-corporate-flight-booking",
+ "today": "2026-11-05",
+ "request": {
+  "traveller_name": "Jordan Lee",
+  "tda_airport": "IAH",
+  "home_airport": "DEN",
+  "assignment_start": "2026-09-01",
+  "assignment_end": "2027-02-28",
+  "family_status": "SINGLE",
+  "duplicate_housing_obligation": true,
+  "last_home_visit": "2026-11-02",
+  "manager_approved": true,
+  "outbound_date": "2026-12-04",
+  "return_date": "2026-12-07"
+ },
+ "steps": [
+  {
+   "tool": "get_trip",
+   "arguments": "$request",
+   "save_as": "trip"
+  },
+  {
+   "tool": "search_flights",
+   "save_as": "search",
+   "arguments": {
+    "run_id": "$ref:trip.run_id",
+    "origin": "$ref:trip.trip.tda.code",
+    "destination": "$ref:trip.trip.home.code",
+    "outbound_date": "$ref:trip.trip.outbound_date",
+    "return_date": "$ref:trip.trip.return_date"
+   }
+  },
+  {
+   "pin_answer_key": true
+  },
+  {
+   "submit": {
+    "run_id": "$ref:trip.run_id",
+    "booked": true,
+    "refusal": "NONE",
+    "offer_id": "20261204-20261207-01"
+   }
+  }
+ ],
+ "expect": {
+  "valid": false,
+  "score": 0.0,
+  "failed": [
+   "this-run"
+  ]
+ }
+}
