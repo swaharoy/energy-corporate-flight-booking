@@ -1,5 +1,5 @@
 _ > nanoagent.plugin.v0001.ProductConfig:
-tagline: "Book return home visits the way a temporary-assignment policy says to"
+tagline: "Book return home visits under Chevron's public U.S. Temporary Domestic Assignment Program"
 summary: "Describe your temporary assignment and the home visit you want, in plain words, and an agent books a round-trip flight home and back, as of today, under a policy based on Chevron's public U.S. Temporary Domestic Assignment Program: home visits only for 91-365 day assignments, with a home kept, not accompanied, manager-approved, 400 or more miles apart, at most every four (single) or two (unaccompanied) weeks, 14 days ahead, round-trip economy non-refundable at the lowest fare. Real U.S. airports and airline names; simulated fares and schedules. A deterministic verifier checks every answer against the policy's rules."
 highlights:
   - "No codes to learn: describe the assignment and the visit; the plugin can list what it needs"
